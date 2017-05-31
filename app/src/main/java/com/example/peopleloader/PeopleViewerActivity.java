@@ -15,7 +15,7 @@ import butterknife.ButterKnife;
 
 public class PeopleViewerActivity extends AppCompatActivity {
     @BindView (R.id.people_pager) protected ViewPager mPeoplePager;
-    private pageAdapter mAdapter;
+    private PageAdapter mAdapter;
     private DatabaseHelper mDatabaseHelper;
 
     @Override
@@ -25,7 +25,7 @@ public class PeopleViewerActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mDatabaseHelper = new DatabaseHelper(this);
-        mAdapter = new pageAdapter(getSupportFragmentManager());
+        mAdapter = new PageAdapter(getSupportFragmentManager());
 
         LoadCursorAsync loader = new LoadCursorAsync();
         loader.execute(mDatabaseHelper);
@@ -34,10 +34,10 @@ public class PeopleViewerActivity extends AppCompatActivity {
 
     }
 
-    private class pageAdapter extends FragmentPagerAdapter {
+    private class PageAdapter extends FragmentPagerAdapter {
         private Cursor mPeopleCursor = null;
 
-        public pageAdapter(FragmentManager fm) {
+        public PageAdapter(FragmentManager fm) {
             super(fm);
         }
 
