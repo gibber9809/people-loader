@@ -22,11 +22,19 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/blurb"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="6"
-        android:textAlignment="viewStart"
-        android:gravity="start"/>
+        android:layout_weight="6">
+
+            <TextView
+                android:id="@+id/blurb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="start"
+                android:textAlignment="viewStart" />
+    </ScrollView>
+
 </LinearLayout>
