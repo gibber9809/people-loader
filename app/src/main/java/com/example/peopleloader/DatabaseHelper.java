@@ -35,4 +35,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //Ignore, there will only be one version of the schema
     }
+
 }
