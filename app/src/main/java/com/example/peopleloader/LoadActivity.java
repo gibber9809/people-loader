@@ -25,9 +25,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/*
- *
- */
 
 public class LoadActivity extends AppCompatActivity {
     @BindView (R.id.url_entry) protected EditText mUrlEntry;
