@@ -1,14 +1,8 @@
 package com.example.peopleloader;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -34,7 +28,6 @@ import butterknife.OnClick;
  */
 
 public class LoadActivity extends AppCompatActivity {
-    private static final int REQUEST_INTERNET_THEN_ADD = 34624;
     @BindView (R.id.url_entry) protected EditText mUrlEntry;
     @BindView (R.id.progressBar) protected ProgressBar mProgressBar;
     @BindView (R.id.view_button) protected Button mViewButton;
@@ -50,24 +43,10 @@ public class LoadActivity extends AppCompatActivity {
         mDatabaseHelper = new DatabaseHelper(this);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        //Don't need to worry about type of permission, because we only ever request
-        //Internet permissions for this app
-        switch (requestCode) {
-            case REQUEST_INTERNET_THEN_ADD:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    add();
-                } else {
-                    Toast.makeText(this, R.string.must_enable_permission, Toast.LENGTH_SHORT).show();
-                }
-        }
-    }
-
     @OnClick (R.id.add_button)
     public void add() {
-        //If we have the correct permissions AND we are not already loading people
-        if (internetPermissionEnabled(this) && mLoadPeopleTask == null ) {
+        //If we are not already loading people
+        if (mLoadPeopleTask == null ) {
             try {
                 URL url = new URL(mUrlEntry.getText().toString());
                 mLoadPeopleTask = new LoadPeopleTask();
@@ -75,8 +54,6 @@ public class LoadActivity extends AppCompatActivity {
             } catch (MalformedURLException e) {
                 Toast.makeText(this, R.string.url_invalid, Toast.LENGTH_SHORT).show();
             }
-        } else if (!internetPermissionEnabled(this)) {
-            resolveInternetPermission(REQUEST_INTERNET_THEN_ADD, this);
         }
 
     }
@@ -84,16 +61,6 @@ public class LoadActivity extends AppCompatActivity {
     @OnClick (R.id.view_button)
     public void viewPeople() {
         //Go to a new activity to load people from the database
-    }
-
-    boolean internetPermissionEnabled(Context context) {
-        return (ContextCompat.checkSelfPermission(context, Manifest.permission.INTERNET) ==
-                PackageManager.PERMISSION_GRANTED);
-    }
-
-    void resolveInternetPermission(int requestCode, Activity activity) {
-        ActivityCompat.requestPermissions(activity,
-                new String[]{Manifest.permission.INTERNET}, requestCode);
     }
 
     class LoadPeopleTask extends AsyncTask<URL, Void, Boolean> {
