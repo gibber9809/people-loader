@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">PeopleLoader</string>
+    <string name="view_people">View Dossiers</string>
+    <string name="add_hint">Add people from a URL</string>
+    <string name="add_people">Add</string>
+    <string name="add_default">http://www.eecg.utoronto.ca/~jayar/PeopleList</string>
+    <string name="url_invalid">Invalid URL</string>
+    <string name="create_table_format">CREATE TABLE %1$s (%2$s TEXT PRIMARY KEY, %3$s TEXT, %4$s TEXT);</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="download_complete">Download Complete</string>
+    <string name="must_enable_permission">Must Enable Internet Permissions</string>
 </resources>
