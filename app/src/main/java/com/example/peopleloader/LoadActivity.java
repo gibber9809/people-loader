@@ -1,6 +1,8 @@
 package com.example.peopleloader;
 
 import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -34,6 +36,7 @@ public class LoadActivity extends AppCompatActivity {
     @BindView (R.id.add_button) protected Button mAddButton;
     private DatabaseHelper mDatabaseHelper;
     private LoadPeopleTask mLoadPeopleTask = null;
+    private boolean mDatabaseNonEmpty = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +44,14 @@ public class LoadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_load);
         ButterKnife.bind(this);
         mDatabaseHelper = new DatabaseHelper(this);
+
+        if (!mDatabaseNonEmpty) {
+            mViewButton.setEnabled(false);
+            CheckIsEmpty checker = new CheckIsEmpty();
+            checker.execute(mDatabaseHelper);
+        }
     }
+
 
     @OnClick (R.id.add_button)
     public void add() {
@@ -60,7 +70,8 @@ public class LoadActivity extends AppCompatActivity {
 
     @OnClick (R.id.view_button)
     public void viewPeople() {
-        //Go to a new activity to load people from the database
+        Intent viewPeople = new Intent(this, PeopleViewerActivity.class);
+        startActivity(viewPeople);
     }
 
     class LoadPeopleTask extends AsyncTask<URL, Void, Boolean> {
@@ -139,11 +150,44 @@ public class LoadActivity extends AppCompatActivity {
             //Now Update UI
             mProgressBar.setVisibility(View.INVISIBLE);
             mAddButton.setEnabled(true);
-            mViewButton.setEnabled(true);
+            if (success || mDatabaseNonEmpty) {
+                mViewButton.setEnabled(true);
+                mDatabaseNonEmpty = true;
+            }
             mLoadPeopleTask = null;
 
         }
 
+    }
+
+    /**
+     * Subclass of (@link AsyncTask) to check if the database is non-empty on startup
+     */
+    private class CheckIsEmpty extends AsyncTask<DatabaseHelper, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(DatabaseHelper... params) {
+            boolean nonEmpty = false;
+            if (params.length > 0) {
+                //Load as little as possible from the database because we only need to check
+                //Non-emptiness
+                SQLiteDatabase db = params[0].getReadableDatabase();
+                Cursor testCursor = db.query(DatabaseHelper.TABLE,
+                        new String[]{DatabaseHelper.COLUMN_PERSON},
+                        null, null, null, null, null, "1");
+
+                nonEmpty = testCursor.getCount() > 0;
+                testCursor.close();
+            }
+            return nonEmpty;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            mDatabaseNonEmpty = result;
+            if (result) {
+                mViewButton.setEnabled(true);
+            }
+        }
     }
 
 }
