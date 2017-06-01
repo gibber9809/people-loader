@@ -59,7 +59,7 @@ public class PeopleViewerActivity extends AppCompatActivity {
         if (mLoad != null) {
             mLoad.cancel(false);
         }
-        if (mAdapter != null) {
+        if (mAdapter != null && !mAdapter.hasNullCursor()) {
             mAdapter.closeCursor();
         }
     }
@@ -157,6 +157,10 @@ public class PeopleViewerActivity extends AppCompatActivity {
         public void closeCursor() {
             mPeopleCursor.close();
         }
+
+        public boolean hasNullCursor() {
+            return mPeopleCursor == null;
+        }
     }
 
 
@@ -193,6 +197,7 @@ public class PeopleViewerActivity extends AppCompatActivity {
                 mAdapter.setPeopleCursor(cursor);
                 mAdapter.notifyDataSetChanged();
                 mPeoplePager.setCurrentItem(mResumePosition, false);
+                mPeoplePager.setEnabled(true);
             } else {
                 Intent upIntent = NavUtils.getParentActivityIntent(PeopleViewerActivity.this);
                 upIntent.putExtra(LoadActivity.DB_STATUS_EXTRA, false);
@@ -220,6 +225,7 @@ public class PeopleViewerActivity extends AppCompatActivity {
         @Override
         public void onPreExecute() {
             mPeoplePager.setAdapter(null);
+            mPeoplePager.setEnabled(false);
             mAdapter.closeCursor();
             mAdapter = new PageAdapter(getSupportFragmentManager());
         }
