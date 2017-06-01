@@ -1,8 +1,10 @@
 package com.example.peopleloader;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -49,6 +51,20 @@ public class PeopleViewerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mDelete != null) {
+            mDelete.cancel(false);
+        }
+        if (mLoad != null) {
+            mLoad.cancel(false);
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case android.R.id.home:
@@ -61,10 +77,18 @@ public class PeopleViewerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Callback for the search button
+     *
+     * Launches a web browser
+     */
     @OnClick(R.id.search_person_button)
     public void searchCurrentPerson() {
-        if (mDelete != null) {
+        if (mDelete == null) {
             String name = mAdapter.getPersonName(mPeoplePager.getCurrentItem());
+            Intent launchBrowser = new Intent(Intent.ACTION_VIEW);
+            launchBrowser.setData(Uri.parse(formattedSearch(name)));
+            startActivity(launchBrowser);
         }
     }
 
@@ -81,6 +105,15 @@ public class PeopleViewerActivity extends AppCompatActivity {
 
             mDelete.execute(mDatabaseHelper);
         }
+    }
+
+    private String formattedSearch(String name) {
+        String baseQuery = getString(R.string.base_query);
+        for (String nameSegment: name.split(" ")) {
+            baseQuery += nameSegment + "+";
+        }
+        //Use substring to remove the last '+' character
+        return baseQuery.substring(0, baseQuery.length() - 1);
     }
 
     private class PageAdapter extends FragmentStatePagerAdapter {
@@ -120,6 +153,10 @@ public class PeopleViewerActivity extends AppCompatActivity {
             return mPeopleCursor
                     .getString(mPeopleCursor.getColumnIndex(DatabaseHelper.COLUMN_PERSON));
         }
+
+        public void closeCursor() {
+            mPeopleCursor.close();
+        }
     }
 
 
@@ -140,10 +177,12 @@ public class PeopleViewerActivity extends AppCompatActivity {
                         null, null, null, null, DatabaseHelper.COLUMN_PERSON);
 
                 //Perform an operation to force cursor to load now
-                if (cursor.getCount() > 0)
+                if (cursor.getCount() > 0) {
                     return cursor;
-                else
+                } else {
+                    cursor.close();
                     return null;
+                }
             }
             return null;
         }
@@ -163,6 +202,14 @@ public class PeopleViewerActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Subclass of (@link AsyncTask) to delete a person from the database
+     * Sets the adapter for the ViewPager to null to force it to release fragments
+     * and remake them.
+     *
+     * There is probably some inherited internal state from FragmentStatePagerAdapter
+     * that could be overwritten to get the same effect.
+     */
     private class DeletePersonAsync extends AsyncTask<DatabaseHelper,Void,Void> {
         private String mName;
 
@@ -173,6 +220,7 @@ public class PeopleViewerActivity extends AppCompatActivity {
         @Override
         public void onPreExecute() {
             mPeoplePager.setAdapter(null);
+            mAdapter.closeCursor();
             mAdapter = new PageAdapter(getSupportFragmentManager());
         }
 

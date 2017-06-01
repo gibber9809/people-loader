@@ -52,6 +52,17 @@ public class LoadActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mLoadPeopleTask != null) {
+            mLoadPeopleTask.cancel(false);
+        }
+        if (mChecker != null) {
+            mChecker.cancel(false);
+        }
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
          mDatabaseNonEmpty = intent.getBooleanExtra(DB_STATUS_EXTRA, false);
     }

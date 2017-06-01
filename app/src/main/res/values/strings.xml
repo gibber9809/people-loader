@@ -8,6 +8,7 @@
     <string name="create_table_format">CREATE TABLE %1$s (%2$s TEXT PRIMARY KEY, %3$s TEXT, %4$s TEXT);</string>
     <string name="download_failed">Download Failed</string>
     <string name="download_complete">Download Complete</string>
+    <string name="base_query">https://www.google.ca/search?q=</string>
     <string name="must_enable_permission">Must Enable Internet Permissions</string>
     <string name="title_activity_people_viewer">PeopleViewerActivity</string>
     <string name="delete_format">%1$s = \'%2$s\'</string>
