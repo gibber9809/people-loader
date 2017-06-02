@@ -31,8 +31,10 @@ public class LoadActivity extends AppCompatActivity {
     @BindView (R.id.progressBar) protected ProgressBar mProgressBar;
     @BindView (R.id.view_button) protected Button mViewButton;
     @BindView (R.id.add_button) protected Button mAddButton;
+    public static final String DB_STATUS_EXTRA = "DB_STATUS_EXTRA";
     private DatabaseHelper mDatabaseHelper;
     private LoadPeopleTask mLoadPeopleTask = null;
+    private CheckIsEmpty mChecker = null;
     private boolean mDatabaseNonEmpty = false;
 
     @Override
@@ -42,12 +44,43 @@ public class LoadActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         mDatabaseHelper = new DatabaseHelper(this);
 
-        if (!mDatabaseNonEmpty) {
-            mViewButton.setEnabled(false);
-            CheckIsEmpty checker = new CheckIsEmpty();
-            checker.execute(mDatabaseHelper);
+
+        mViewButton.setEnabled(false);
+        mChecker = new CheckIsEmpty();
+        mChecker.execute(mDatabaseHelper);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mLoadPeopleTask != null) {
+            mLoadPeopleTask.cancel(false);
+        }
+        if (mChecker != null) {
+            mChecker.cancel(false);
         }
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+         mDatabaseNonEmpty = intent.getBooleanExtra(DB_STATUS_EXTRA, false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mDatabaseNonEmpty) {
+            mViewButton.setEnabled(true);
+            if (mChecker != null) {
+                mChecker.cancel(true);
+                mChecker = null;
+            }
+        } else {
+            mViewButton.setEnabled(false);
+        }
+    }
+
 
 
     @OnClick (R.id.add_button)
@@ -184,6 +217,7 @@ public class LoadActivity extends AppCompatActivity {
             if (result) {
                 mViewButton.setEnabled(true);
             }
+            mChecker = null;
         }
     }
 
