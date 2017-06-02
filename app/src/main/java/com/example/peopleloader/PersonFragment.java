@@ -74,7 +74,14 @@ public class PersonFragment extends Fragment {
                     .apply(baseRequest)
                     .into(mPicture);
         } catch (MalformedURLException e) {
-            //Simply don't load the image if the URL is not valid
+            //Load the default image if the URL is invalid
+            RequestOptions centerRequest= new RequestOptions();
+            centerRequest.optionalCenterInside();
+
+            Glide.with(this)
+                    .load(R.drawable.placeholder_picture)
+                    .apply(centerRequest)
+                    .into(mPicture);
         }
 
         return rootView;

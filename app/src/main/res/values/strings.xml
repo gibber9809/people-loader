@@ -12,5 +12,6 @@
     <string name="must_enable_permission">Must Enable Internet Permissions</string>
     <string name="title_activity_people_viewer">PeopleViewerActivity</string>
     <string name="delete_format">%1$s = \'%2$s\'</string>
+    <string name="loading_default">Loading&#8230;</string>
 
 </resources>
