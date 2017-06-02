@@ -41,8 +41,6 @@ public class PeopleViewerActivity extends AppCompatActivity {
         mLoad = new LoadCursorAsync();
         mLoad.execute(mDatabaseHelper);
 
-        //mPeoplePager.setAdapter(mAdapter);
-
         try {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } catch (NullPointerException e) {
@@ -202,7 +200,7 @@ public class PeopleViewerActivity extends AppCompatActivity {
         protected void onPostExecute(Cursor cursor) {
             if (cursor != null) {
                 mAdapter.setPeopleCursor(cursor);
-                mPeoplePager.setAdapter(mAdapter);//TODO test
+                mPeoplePager.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 mPeoplePager.setCurrentItem(mResumePosition, false);
                 mLoad = null;
@@ -220,14 +218,14 @@ public class PeopleViewerActivity extends AppCompatActivity {
                 //synchronously, so if I were to set this to null, and the display refreshed BEFORE
                 //destroying this activity, we would get a crash.
             }
-            //mLoad = null;
+
         }
     }
 
     /**
      * Subclass of (@link AsyncTask) to delete a person from the database
-     * Sets the adapter for the ViewPager to null to force it to release fragments
-     * and remake them.
+     * Sets the cursor for the adapter to null, which makes the adapter display some default data
+     * which protects us from crashes while we modify the database.
      *
      * There is probably some inherited internal state from FragmentStatePagerAdapter
      * that could be overwritten to get the same effect.
@@ -241,11 +239,8 @@ public class PeopleViewerActivity extends AppCompatActivity {
 
         @Override
         public void onPreExecute() {
-            //mPeoplePager.setAdapter(new PageAdapter(getSupportFragmentManager()));
-            //mPeoplePager.setAdapter(null);
             mAdapter.closeCursor();
             mAdapter.notifyDataSetChanged();
-            //mAdapter = new PageAdapter(getSupportFragmentManager());
         }
 
         @Override
